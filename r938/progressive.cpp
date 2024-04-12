@@ -5,7 +5,10 @@
 #include <map>
 #include <string>
 #include <cmath>
+#include <set>
 using namespace std;
+
+#define all(a) (a).begin(), (a).end()
 
 typedef long long ll;
 typedef vector<vector<int>> vvi;
@@ -76,42 +79,37 @@ ll comb(ll n, int r){
     return n * (n - 1) / 2;
 }
 
-vi getArray(int n, int c, int d){
-    vi ans(pow(n, 2), 0);
+int gcd(int a, int b){
+    if (b == 0) return a;
+    if (a == b) return a;
+    if (a > b) return gcd(b, a % b);
+    return gcd(b, a);
+}
+
+void solve(){
+    int n, c, d;
+    cin >> n >> c >> d;
+    vi nums (n * n);
+    for (auto &i : nums) cin >> i;
+
+    sort(all(nums));
+
+    vi ans (n * n);
+    ans[0] = nums[0];
     for (int i = 0; i < n; ++i){
         for (int j = 0; j < n; ++j){
-            ans[i * n + j] = c * i + d * j;
+            if (i == 0 && j == 0) continue;
+            ans[i * n + j] = ans[0] + i * c + j * d;
         }
     }
-    sort(ans.begin(), ans.end());
-    // cout << "size: " << ans.size() << endl;
-    return ans;
+    sort(all(ans));
+    cout << (ans == nums ? "Yes" : "No") << "\n";
 }
 
 int main(){
     int t;
     cin >> t;
     while (t--){
-        int n, c, d;
-        cin >> n >> c >> d;
-        vi ans = getArray(n, c, d);
-        vi given (pow(n, 2));
-        for (auto & i : given) cin >> i;
-        sort(given.begin(), given.end());
-
-        // for (auto i : given) cout << i << ",";
-        // cout << endl; cout << "ans:";
-        // for (auto i : ans) cout << i << ",";
-        // cout << endl;
-
-
-        bool corr = true;
-        for (int i = 0; i < ans.size(); i++){
-            if (given[i] - given[0] != ans[i]){
-                corr = false;
-                break;
-            }
-        }
-        cout << (corr ? "YES" : "NO") << "\n";
+        solve();
     }
 }
