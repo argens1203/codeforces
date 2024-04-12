@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <cmath>
+#include <set>
 using namespace std;
 
 typedef long long ll;
@@ -15,6 +16,7 @@ typedef unordered_map<long long, int> umlli;
 typedef unordered_map<int, int> umii;
 typedef unsigned long long ull;
 typedef map<pair<int, int>, int> mpii;
+typedef multiset<int> msi;
 
 // 1 use unsigned long long
 // 2 optimize NcR
@@ -92,50 +94,54 @@ int sum (umii u){
     return s;
 }
 
+void solve(){
+    int n, m, k;
+    cin >> n >> m >> k;
+    vi a(n);
+    vi b(m);
+    
+    for (auto & i : a) cin >> i;
+    for (auto & i : b) cin >> i;
+
+    multiset<int> overlap, b_only, a_only;
+    for (auto i : b) b_only.insert(i);
+
+    int count = 0;
+    for (int i = 0; i < m; ++i){
+        if (b_only.find(a[i]) != b_only.end()) {
+            b_only.erase(b_only.find(a[i]));
+            overlap.insert(a[i]);
+        } else {
+            a_only.insert(a[i]);
+        }
+    }
+
+    if (overlap.size() >= k) count++;
+
+    for (int i = m; i < n; ++i){
+        int elem = a[i];
+        int rem = a[i - m];
+        if (a_only.find(rem) != a_only.end()) a_only.erase(a_only.find(rem));
+        else {
+            overlap.erase(overlap.find(rem));
+            b_only.insert(rem);
+        }
+        if (b_only.find(elem) != b_only.end()){
+            b_only.erase(b_only.find(elem));
+            overlap.insert(elem);
+        } else {
+            a_only.insert(elem);
+        }
+
+        if (overlap.size() >= k) count++;
+    }
+    cout << count << "\n";
+}
+
 int main(){
     int t;
     cin >> t;
     while (t--){
-        int n, m, k;
-        cin >> n >> m >> k;
-        vi a(n);
-        vi b(m);
-        
-        for (auto & i : a) cin >> i;
-        for (auto & i : b) cin >> i;
-
-        int count = 0;
-        umii freq_a, freq_b;
-        for (int i = 0; i < m; ++i){
-            freq_a[a[i]] ++;
-            freq_b[b[i]] ++;
-        }
-        umii freq_overlap = count_min(freq_a, freq_b);
-        int mc = sum(freq_overlap);
-        if (mc >= k) count ++;
-
-        for (int i = 1; i <= n - m; ++i){
-            int prev = a[i - 1];
-            int next = a[i + m - 1];
-            freq_a[prev]--;
-            freq_a[next]++;
-            // cout << freq_overlap[prev] << ",: " << freq_a[prev] << endl;
-            if (freq_overlap[prev] > freq_a[prev]){
-                // cout << "mc--" << endl;
-                mc--;
-                freq_overlap[prev]--;
-            }
-            if (freq_overlap[next] < freq_a[next] && freq_overlap[next] < freq_b[next]){
-                // cout << "mc++" << endl;
-                mc++;
-                freq_overlap[next]++;
-            }
-            if (mc >= k) {
-                count ++;
-                // cout << i << ", " << prev << ", " << next << ", " << mc << ": " << freq_b[next] << endl;
-            }
-        }
-
-        cout << count << "\n";
+        solve();
     }
 }
