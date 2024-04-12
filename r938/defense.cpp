@@ -8,6 +8,8 @@
 #include <set>
 using namespace std;
 
+#define all(a) (a).begin(), (a).end()
+
 typedef long long ll;
 typedef vector<vector<int>> vvi;
 typedef vector<int> vi;
@@ -88,88 +90,84 @@ double dist(pair<int, int> a, pair<int, int> b){
     return sqrt(pow(a.first - b.first, 2) + pow(a.second - b.second, 2));
 }
 
+const int R = 12;
+const int NINF = -2e9;
+
 void solve(){
     int n, m, k;
     cin >> n >> m >> k;
-    vector<pair<int, int>> path;
-    for (int i = 0; i < n; i++){
-        for (int j = 0; j < m; j++){
-            char temp;
-            cin >> temp;
-            if (temp == '#'){
-                path.push_back({i, j});
-            }
+    vector<vector<bool>> grid(n, vector<bool>(m, 0));
+    for (int i = 0; i < n; ++i){
+        string s;
+        cin >> s;
+        for (int j = 0; j < m; ++j){
+            grid[i][j] = (s[j] == '#');
         }
     }
 
-    map<pair<int, int>, int> towers;
+    vector<pair<int, int>> tower(k);
+    vector<int> power(k);
     for (int i = 0; i < k; ++i){
-        int row, col, pow;
-        cin >> row >> col >> pow;
-        --row; --col;
-        towers[{row, col}] = pow;
+        cin >> tower[i].first >> tower[i].second >> power[i];
+        --tower[i].first;
+        --tower[i].second;
+    }
+    // end of taking input
+
+    vector<int>cost (R);
+    int c = 1;
+    for (int i = 0; i < R; ++i){
+        c *= 3;
+        cost[i] = c;
     }
 
-    auto getdmg = [&](pair<int, int> towerKey, int radius) -> long long {
-        long long dmg = 0;
-        for (auto tile : path){
-            if (dist(tile, towerKey) <= radius){
-                dmg += (long long) towers[towerKey];
+    auto benefit = [&](int t_idx, int r) -> int {
+        int tx = tower[t_idx].first;
+        int ty = tower[t_idx].second;
+        int total = 0;
+        for (int i = tx - r; i <= tx + r; ++i){
+            if (i < 0) continue;
+            if (i >= n) continue;
+            for (int j = ty - r; j <= ty + r; ++j){
+                if (j < 0) continue;
+                if (j >= m) continue;
+                if ((j - ty) * (j - ty) + (i - tx) * (i - tx) > r * r) continue;
+                if (grid[i][j]) total += power[t_idx];
             }
         }
-        return dmg;
+        return max(total - cost[r - 1], 0);
     };
 
-    int maxRange = (int)ceil(sqrt(pow(n, 2) + pow(m, 2))) + 1;
-
-    vector<tuple<pair<int, int>, int, long long>> tow_dmg; // coo, range, dmg
-    vll costs (maxRange, 0);
-    for (int i = 0; i < maxRange; ++i){
-        costs[i] = pow(3, i);
-    }
-    for (auto itr : towers){
-        for (int i = 1; i < maxRange; ++i){
-            int cost = costs[i];
-            long long dmg = getdmg(itr.first, i);
-            tuple<pair<int, int>, int, long long> tmp;
-            get<0>(tmp) = itr.first;
-            get<1>(tmp) = i;
-            get<2>(tmp) = (long long) dmg - cost;
-            tow_dmg.push_back(tmp);
+    vector<vector<int>> precal(k, vi(R));
+    for (int i = 0; i < k; ++i){
+        for (int j = 0; j < R; ++j){
+            precal[i][j] = benefit(i, j);
         }
     }
+    // end of precal
 
-    auto comp = [&](tuple<pair<int, int>, int, long long> a, tuple<pair<int, int>, int, long long> b) -> int {
-        return get<2>(a) < get<2>(b) || (get<2>(a) == get<2>(b) && get<1>(a) > get<1>(b));
-    };
-
-    sort(tow_dmg.rbegin(), tow_dmg.rend(), comp);
-
-    long long maxHp = 0;
-    set<tuple<pair<int, int>, int, long long>> seen;
-    for (int i = 0; i < max(k, maxRange); ++i){
-        long long hp = 0;
-        set<pair<int, int>> chosen;
-        set<int> chosenRange;
-        bool first = true;
-        for (auto itr : tow_dmg){
-            if (seen.find(itr) != seen.end()) continue;
-            if (first){seen.insert(itr); first = false;}
-            // auto t = get<0>(itr);
-            // cout << t.first << ", " << t.second << ": (" << get<1>(itr) << ") " << get<2>(itr) << endl;
-            if (chosen.find(get<0>(itr)) == chosen.end() && chosenRange.find(get<1>(itr)) == chosenRange.end()){
-                if (get<2>(itr) > 0){
-                    hp += get<2>(itr);
-                    chosenRange.insert(get<1>(itr));
-                    chosen.insert(get<0>(itr));
+    vector<vector<int>> dp(k + 1, vector<int>(1 << R, NINF));
+    dp[0][0] = 0;
+    for (int i = 1; i <= k; ++i){
+        int t_idx = i - 1;
+        for (int mask = 0; mask < (1 << R); ++mask){
+            dp[i][mask] = dp[i - 1][mask];
+            for (int r = 1; r <= R; ++r){
+                if (!(mask & (1 << (r - 1)))) {
+                    continue;
                 }
-            } else {
-                continue;
+                dp[i][mask] = max(dp[i][mask],
+                    dp[i - 1][mask ^ (1 << (r - 1))] + precal[t_idx][r - 1]
+                );
             }
         }
-        if (hp > maxHp) maxHp = hp; 
     }
-    cout << maxHp << "\n";
+
+    int maxx = 0;
+    for (int i = 0; i < (1 << R); ++i){
+        maxx = max(maxx, dp[k][i]);
+    }
+    cout << maxx << "\n";
 }
 
 int main(){
