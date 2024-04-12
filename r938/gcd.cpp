@@ -92,13 +92,12 @@ void solve(){
     for (int i = 0; i < n; ++i) for (int j = 0; j < m; ++j) cin >> num[i][j];
 
     int max_cand = gcd(num[0][0], num[n - 1][m - 1]);
-    int cand;
+    vector<vector<bool>> grid (n, vector<bool> (m, false));
     auto works = [&](int cand) -> bool {
-        vector<vector<bool>> grid (n, vector<bool> (m, false));
+        for (int i = 0; i < n; ++i) grid[i].assign(m, 0);
         for (int i = n - 1; i >= 0; --i){
             for (int j = m - 1; j >= 0; --j){
                 if ((num[i][j] % cand) != 0){
-                    grid[i][j] = false;
                     continue;
                 }
                 if (j + 1 < m && grid[i][j + 1]) {
@@ -109,16 +108,21 @@ void solve(){
                     grid[i][j] = true;
                     continue;
                 }
-                if (i == n - 1 && j == m - 1) grid[i][j] = true;
+                if (i == n - 1 && j == m - 1){
+                    grid[i][j] = true;
+                    continue;
+                }
             }
         }
         return grid[0][0];
     };
-    for (cand = max_cand; cand >= 1; --cand){
-        if (works(cand)) break;
+    int maxx = 1;
+    for (int i = 1; i * i <= max_cand; ++i){
+        if (max_cand % i > 0) continue;
+        if (works(i)){maxx = max(maxx, i);}
+        if (works(max_cand / i)) {maxx = max(maxx, max_cand / i);}
     }
-
-    cout << cand << "\n";
+    cout << maxx << endl;
 }
 
 int main(){
