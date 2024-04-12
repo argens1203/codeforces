@@ -87,42 +87,38 @@ int gcd(int a, int b){
 void solve(){
     int n, m;
     cin >> n >> m;
-    vvi mapp(n);
-    vector<vector<set<int>>> ans(n);
-    for (int i = 0; i < n; i++){
-        vi row(m);
-        vector<set<int>> arow(m);
-        for (int j = 0; j < m; j++){
-            cin >> row[j];
-            set<int> possibles;
-            arow[j] = possibles;
+    vvi num (n, vi(m));
+
+    for (int i = 0; i < n; ++i) for (int j = 0; j < m; ++j) cin >> num[i][j];
+
+    int max_cand = gcd(num[0][0], num[n - 1][m - 1]);
+    int cand;
+    auto works = [&](int cand) -> bool {
+        vector<vector<bool>> grid (n, vector<bool> (m, false));
+        for (int i = n - 1; i >= 0; --i){
+            for (int j = m - 1; j >= 0; --j){
+                if ((num[i][j] % cand) != 0){
+                    grid[i][j] = false;
+                    continue;
+                }
+                if (j + 1 < m && grid[i][j + 1]) {
+                    grid[i][j] = true;
+                    continue;
+                }
+                if (i + 1 < n && grid[i + 1][j]){
+                    grid[i][j] = true;
+                    continue;
+                }
+                if (i == n - 1 && j == m - 1) grid[i][j] = true;
+            }
         }
-        mapp[i] = row;
-        ans[i] = arow;
+        return grid[0][0];
+    };
+    for (cand = max_cand; cand >= 1; --cand){
+        if (works(cand)) break;
     }
 
-    for (int i = n - 1; i >= 0; --i){
-        for (int j = m - 1; j >= 0; --j){
-            if (i == n - 1 && j == m - 1){
-                ans[i][j].insert(mapp[n - 1][m - 1]);
-            }
-            else {
-                if (j != m - 1)
-                    for (auto pos : ans[i][j + 1]){
-                        ans[i][j].insert(gcd(mapp[i][j], pos));
-                    }
-                if (i != n - 1) 
-                    for (auto pos : ans[i + 1][j]){
-                        ans[i][j].insert(gcd(mapp[i][j], pos));
-                    }
-            }
-        }
-    }
-    int max = -1;
-    for (auto i : ans[0][0]){
-        if (i > max) max = i;
-    }
-    cout << max << "\n";
+    cout << cand << "\n";
 }
 
 int main(){
