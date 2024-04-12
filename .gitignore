@@ -2,3 +2,4 @@ test
 test.cpp
 test.*
 .vscode
+.DS_Store
