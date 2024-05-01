@@ -3,3 +3,4 @@ test.cpp
 test.*
 .vscode
 .DS_Store
+command.sh
