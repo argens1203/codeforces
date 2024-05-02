@@ -100,7 +100,7 @@ int add(int x, int y) {
 } 
  
 int mul(int x, int y) {
-  return x * 1LL * y % MOD;
+  return x * 1LL * y % MOD; // use 1LL to prevent overflow
 }
  
 int main() {
@@ -109,22 +109,32 @@ int main() {
     vi a(n);
     for (auto & i : a) cin >> i;
 
-    int s = accumulate(a.begin(), a.end(), 0);
-    vi dp(s + 1, 0);
-    dp[0] = 1;
+    // From here on, sum means sum of balls given a set of colors
+    int s = accumulate(a.begin(), a.end(), 0); // get maximum sum and by definition s <= 5000
+    vi dp(s + 1, 0); // use dp to store + calc. the no. of sets which has an exact sum
+    dp[0] = 1; // only way to have sum = 0 is empty set
     for (auto num : a){
+        // by looping it in reversing order, each number cannot be added in set twice
         for (int j = s - num; j >= 0; --j){
-            dp[j + num] = add(dp[j + num], dp[j]);
+            dp[j + num] = add(dp[j + num], dp[j]); // not using += can be confusing
         }
     }
 
     int total = 0;
     for (int j = 1; j <= s; j++){
+        // (j + 1 / 2) is round_up(j / 2)
+        // # of set = dp[j], value = (j + 1) / 2, sum of value = sum of mult
         total = add(total, mul(dp[j], (j + 1) / 2));
     }
 
+    // total has been undershot by cases where 1 number is greater than sum of all
     for (auto num : a){
+        // hence the less than sign (<) is critical
+        // by looping sum directly, up to less than "num"
+        // we get the number of sets we undershot, since we 100% constructed a set from those by adding a "num" to it, which also 100% didn't already exist since j < num
         for (int j = 0; j < num; ++j){
+            // add num, minus (j + num + 1) / 2, which is the set we supposedly constructed
+            // multiply by number of sets we undershot
             total = add(total, mul(dp[j], num - (j + num + 1) / 2));
         }
     }
