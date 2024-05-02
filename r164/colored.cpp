@@ -6,6 +6,7 @@
 #include <string>
 #include <cmath>
 #include <set>
+#include <numeric>
 using namespace std;
 
 #define all(a) (a).begin(), (a).end()
@@ -90,40 +91,42 @@ double dist(pair<int, int> a, pair<int, int> b){
     return sqrt(pow(a.first - b.first, 2) + pow(a.second - b.second, 2));
 }
 
-const int M = 998244353;
-int main(){
-    int n; cin >> n;
-    vi list(n);
-    for (auto & i : list) cin >> i;
-    sort(list.rbegin(), list.rend());
+const int MOD = 998244353;
+ 
+int add(int x, int y) {
+  x += y;
+  if (x >= MOD) x -= MOD;
+  return x;
+} 
+ 
+int mul(int x, int y) {
+  return x * 1LL * y % MOD;
+}
+ 
+int main() {
+    int n;
+    cin >> n;
+    vi a(n);
+    for (auto & i : a) cin >> i;
 
-    auto get_idx = [&] (int flag) -> int {
-        int idx = 0;
-        while ((flag = flag >> 1)) idx++;
-        return idx;
-    };
-
-    unordered_map<int, int> cache;
-    cache[0] = 0;
-    auto get_sum = [&] (int flag, auto self) -> int {
-        if (cache.find(flag) != cache.end()) return cache[flag];
-        int most_sig = get_idx(flag);
-        int remainder = flag - (1 << most_sig);
-        int s = self(remainder, self) + list[n - most_sig - 1];
-        cache[flag] = s;
-        return s;
-    };
-
-    auto calc = [&] (int flag) -> int {
-        int s = get_sum(flag, get_sum);
-        s = s % 2 == 0 ? s / 2 : s / 2 + 1;
-        int idx = get_idx(flag);
-        return max(list[n - 1 - idx], s);
-    };
+    int s = accumulate(a.begin(), a.end(), 0);
+    vi dp(s + 1, 0);
+    dp[0] = 1;
+    for (auto num : a){
+        for (int j = s - num; j >= 0; --j){
+            dp[j + num] = add(dp[j + num], dp[j]);
+        }
+    }
 
     int total = 0;
-    for (int i = 1; i < pow(2, n); ++i){
-        total = (total + calc(i)) % M;
+    for (int j = 1; j <= s; j++){
+        total = add(total, mul(dp[j], (j + 1) / 2));
+    }
+
+    for (auto num : a){
+        for (int j = 0; j < num; ++j){
+            total = add(total, mul(dp[j], num - (j + num + 1) / 2));
+        }
     }
     cout << total << "\n";
 }
