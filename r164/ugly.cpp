@@ -109,13 +109,9 @@ void solve(){
             min_count = min(min_count, count);
             start = i + 1;
         }
-    }
-    start = n - 1;
-    for (int i = n - 1; i >= 0; --i){
-        if (list[i] != list[0]){
-            int count = start - i;
+        if (i == n - 1){
+            int count = i - start + 1;
             min_count = min(min_count, count);
-            start = i - 1;
         }
     }
     cout << (min_count == n ? -1 : min_count) << "\n";
