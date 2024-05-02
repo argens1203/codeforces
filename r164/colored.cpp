@@ -95,29 +95,34 @@ int main(){
     int n; cin >> n;
     vi list(n);
     for (auto & i : list) cin >> i;
+    sort(list.rbegin(), list.rend());
+
+    auto get_idx = [&] (int flag) -> int {
+        int idx = 0;
+        while ((flag = flag >> 1)) idx++;
+        return idx;
+    };
+
+    unordered_map<int, int> cache;
+    cache[0] = 0;
+    auto get_sum = [&] (int flag, auto self) -> int {
+        if (cache.find(flag) != cache.end()) return cache[flag];
+        int most_sig = get_idx(flag);
+        int remainder = flag - (1 << most_sig);
+        int s = self(remainder, self) + list[n - most_sig - 1];
+        cache[flag] = s;
+        return s;
+    };
 
     auto calc = [&] (int flag) -> int {
-        int mask = 1;
-        vi sa;
-        for (int i = 0; i < n; ++i){
-            if (mask & flag){
-                sa.push_back(list[i]);
-            }
-            mask = mask << 1;
-        }
-        if (sa.size() == 0) return 0;
-        int s = 0;
-        int m = -1;
-        for (auto i : sa) {
-            s += i;
-            if (i > m) m = i;
-        }
+        int s = get_sum(flag, get_sum);
         s = s % 2 == 0 ? s / 2 : s / 2 + 1;
-        return max(m, s);
+        int idx = get_idx(flag);
+        return max(list[n - 1 - idx], s);
     };
 
     int total = 0;
-    for (int i = 0; i < pow(2, n); ++i){
+    for (int i = 1; i < pow(2, n); ++i){
         total = (total + calc(i)) % M;
     }
     cout << total << "\n";
