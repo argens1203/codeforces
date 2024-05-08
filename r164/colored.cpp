@@ -135,7 +135,7 @@ int main() {
         for (int j = 0; j < num; ++j){
             // add num, minus (j + num + 1) / 2, which is the set we supposedly constructed
             // multiply by number of sets we undershot
-            total = add(total, mul(dp[j], num - (j + num + 1) / 2));
+            total = add(total, mul(dp[j], num - (j + num + 1) / 2)); // <----------- HIGHLIGHT of the question
         }
     }
     cout << total << "\n";
