@@ -91,25 +91,30 @@ double dist(pair<int, int> a, pair<int, int> b){
     return sqrt(pow(a.first - b.first, 2) + pow(a.second - b.second, 2));
 }
 
-
-int find_l (const vector<int>& a, int k){
-    int total = ceil(a[0] * 1.0 / k);
-    for (int i = 1; i < a.size(); ++i){
-        int l_c = max(0, (int)(ceil(a[i] * 1.0 / k) - ceil(a[i-1] * 1.0 / k)));
-        total += l_c;
-    }
-    return total;
-}
- 
 int main() {
     int n; cin >> n;
     vi a(n);
     for (auto & i : a) cin >> i;
     
     int maxx = *max_element(a.begin(), a.end());
+    vi c(n);
+    for (int i = 0; i < n; ++i){
+        int coef = 0;
+        if (i == 0 || a[i] > a[i - 1]) coef++;
+        if (i + 1 < n && a[i + 1] > a[i]) coef--;
+        c[i] = coef;
+    }
+
+    auto find_l = [&] (int k) -> int {
+        int total = 0;
+        for (int i = 0; i < n; ++i){
+            total += (c[i] * ceil(a[i] / k));
+        }
+        return total;
+    };
 
     for (int k = 1; k < maxx; ++k){
-        cout << find_l(a, k) << ' ';
+        cout << find_l(k) << ' ';
     }
     cout << 1 << "\n";
 }
