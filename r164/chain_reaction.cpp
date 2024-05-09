@@ -97,24 +97,25 @@ int main() {
     for (auto & i : a) cin >> i;
     
     int maxx = *max_element(a.begin(), a.end());
-    vi c(n);
+    vll dp(maxx + 1, 0ll); // accumulate the number of coefficients and iterate by value instead of number
     for (int i = 0; i < n; ++i){
         int coef = 0;
         if (i == 0 || a[i] > a[i - 1]) coef++;
         if (i + 1 < n && a[i + 1] > a[i]) coef--;
-        c[i] = coef;
+        dp[a[i]] += coef; // store the original coefficient
     }
+    // calculate prefix sum since eg. for k = 5, values 1 - 5 are all needing exactly one blow
+    // so sum of coefficient * 1, that is ceil(value / k) over value 1 - 5, is going to sum to dp[5] * 1
+    for (int i = 1; i <= maxx; ++i) dp[i] += dp[i - 1];
 
-    auto find_l = [&] (int k) -> int {
-        int total = 0;
-        for (int i = 0; i < n; ++i){
-            total += (c[i] * ceil(a[i] / k));
+    // loop from 1 to maxx
+    // loop from 1 to ceil(maxx / k)
+    for (int k = 1; k <= maxx; ++k){
+        ll total = 0;
+        for (int i = 1; i <= ceil(maxx * 1.0 /k); ++i){
+            total += i * (dp[min(maxx, i * k)] - dp[(i - 1) * k]);
         }
-        return total;
-    };
-
-    for (int k = 1; k < maxx; ++k){
-        cout << find_l(k) << ' ';
+        cout << total << ' ';
     }
-    cout << 1 << "\n";
+    cout << "\n";
 }
