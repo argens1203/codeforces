@@ -92,30 +92,17 @@ double dist(pair<int, int> a, pair<int, int> b){
 }
 
 
-int find_l (const map<int, set<int>>& mapp, int k, int n){
-    // cout << k << ":";
+int find_l (const vector<int>& a, int k){
     int total = 0;
-    int ac = 1;
     int acc_dmg = 0;
-    set<int> didx;
-    auto curr = mapp.begin();
-    while (curr != mapp.end()){
-        while (acc_dmg < curr -> first){
-            int l_count = max(1, (curr -> first - acc_dmg) / k);
-            acc_dmg += (l_count * k);
-            total += (l_count * ac);
-            // acc_dmg += k;
-            // total += ac;
+    for (int num : a){
+        if (acc_dmg > num){
+            acc_dmg = ceil(num * 1.0 / k) * k;
+            continue;
         }
-        for (auto idx : curr -> second){
-            ac += 1;
-            if (didx.find(idx - 1) != didx.end() || (idx == 0)){
-                ac -= 1;
-            }
-            if (didx.find(idx + 1) != didx.end() || (idx == n - 1)) ac -= 1;
-            didx.insert(idx);
-        }
-        curr++;
+        int l_c = ceil((num - acc_dmg) * 1.0 / k);
+        acc_dmg += l_c * k;
+        total += l_c;
     }
     return total;
 }
@@ -125,20 +112,10 @@ int main() {
     vi a(n);
     for (auto & i : a) cin >> i;
     
-    int maxx = -1;
-    map<int, set<int>> m;
-    for (int i = 0; i < n; ++i){
-        int num = a[i];
-        // cout << num;
-        if (num > maxx) maxx = num;
-        if (m.find(num) == m.end()){
-            m[num] = set<int>();
-        }
-        m[num].insert(i);
-    }
+    int maxx = *max_element(a.begin(), a.end());
 
     for (int k = 1; k < maxx; ++k){
-        cout << find_l(m, k, n) << ' ';
+        cout << find_l(a, k) << ' ';
     }
     cout << 1 << "\n";
 }
