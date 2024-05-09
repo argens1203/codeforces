@@ -93,15 +93,9 @@ double dist(pair<int, int> a, pair<int, int> b){
 
 
 int find_l (const vector<int>& a, int k){
-    int total = 0;
-    int acc_dmg = 0;
-    for (int num : a){
-        if (acc_dmg > num){
-            acc_dmg = ceil(num * 1.0 / k) * k;
-            continue;
-        }
-        int l_c = ceil((num - acc_dmg) * 1.0 / k);
-        acc_dmg += l_c * k;
+    int total = ceil(a[0] * 1.0 / k);
+    for (int i = 1; i < a.size(); ++i){
+        int l_c = max(0, (int)(ceil(a[i] * 1.0 / k) - ceil(a[i-1] * 1.0 / k)));
         total += l_c;
     }
     return total;
