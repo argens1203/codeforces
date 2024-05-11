@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "vector": "cpp",
+        "ostream": "cpp",
+        "iostream": "cpp",
+        "unordered_map": "cpp",
+        "ios": "cpp",
+        "set": "cpp",
+        "__split_buffer": "cpp",
+        "string": "cpp",
+        "tuple": "cpp",
+        "array": "cpp",
+        "map": "cpp",
+        "istream": "cpp",
+        "locale": "cpp",
+        "variant": "cpp",
+        "ratio": "cpp"
+    }
+}
