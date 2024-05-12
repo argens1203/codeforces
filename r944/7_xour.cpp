@@ -8,6 +8,7 @@
 #include <set>
 #include <numeric>
 #include <cstring>
+#include <queue>
 using namespace std;
 
 #define all(a) (a).begin(), (a).end()
@@ -95,21 +96,18 @@ double dist(pair<int, int> a, pair<int, int> b){
 void solve(){
     int n; cin >> n;
     vi a(n);
-    map<int, vector<int>> indices;
+    map<int, priority_queue<int>> indices;
     for (int i = 0; i < n; ++i){
         cin >> a[i];
-        if (indices.find(a[i] / 4) == indices.end()){
-            indices[a[i] / 4] = vector<int>();
+        if (indices.find(a[i] >> 2) == indices.end()){
+            indices[a[i] >> 2] = priority_queue<int>();
         }
-        indices[a[i] / 4].push_back(a[i]);
+        indices[a[i] >> 2].push(-a[i]);
     }
 
-    for (auto itr = indices.begin(); itr != indices.end(); itr++){
-        sort(itr -> second.begin(), itr -> second.end());
-    }
     for (int i : a){
-        cout << indices[i / 4].front() << ' ';
-        indices[i / 4].erase(indices[i/4].begin());
+        cout << -indices[i >> 2].top() << ' ';
+        indices[i >> 2].pop();
     }
     cout << '\n';
 }
