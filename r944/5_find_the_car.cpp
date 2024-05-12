@@ -95,23 +95,23 @@ double dist(pair<int, int> a, pair<int, int> b){
 void solve(){
     int n, k, q;
     cin >> n >> k >> q;
-    vi a(k + 1); a[0] = 0;
-    vi b(k + 1); b[0] = 0;
+    vll a(k + 1); a[0] = 0;
+    vll b(k + 1); b[0] = 0;
     for (int i = 1; i <= k; ++i) cin >> a[i];
     for (int i = 1; i <= k; ++i) cin >> b[i];
 
-    vector<double> c(k);
-    for (int i = 1; i <= k; ++i){
-        c[i - 1] =  (b[i] - b[i-1]) * 1.0 /(a[i] - a[i-1]);
-    }
+    // vector<double> c(k);
+    // for (int i = 1; i <= k; ++i){
+    //     c[i - 1] =  (b[i] - b[i-1]) * 1.0 /(a[i] - a[i-1]);
+    // }
 
     while (q--){
         int p; cin >> p;
         int idx = upper_bound(a.begin(), a.end(), p) - a.begin();
-        int diff = p - a[idx - 1];
+        long long diff = p - a[idx - 1];
         // int inc = diff * c[idx - 1];
-        int inc = diff * 1.0L * (b[idx] - b[idx-1]) /(a[idx] - a[idx-1]);
-        int ans = inc + b[idx - 1];
+        long long inc = diff * (b[idx] - b[idx-1]) / (a[idx] - a[idx-1]);
+        long long ans = inc + b[idx - 1];
         cout << ans << ' ';
     }
 }
