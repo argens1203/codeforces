@@ -95,27 +95,19 @@ double dist(pair<int, int> a, pair<int, int> b){
 void solve(){
     string s;
     cin >> s;
-    char* a = new char[s.size()];
-    strcpy(a, s.c_str());
-
-    char last = s[0];
     bool is_unique = true;
-
     for (int i = 1; i < s.size(); ++i){
-        if (s[i] != last){
+        if (s[i] != s[0]){
+            swap(s[i], s[0]);
             is_unique = false;
-            a[i - 1] = a[i];
-            a[i] = last;
             break;
         }
     }
     if (is_unique){
         cout << "NO\n";
     } else {
-        cout << "YES\n" << a << "\n";
+        cout << "YES\n" << s << "\n";
     }
-    is_unique = true;
-    delete[] a;
 }
 
 int main() {
